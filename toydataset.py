@@ -63,6 +63,74 @@ class ToyAudioSequenceDataset(Dataset):
             sample= self.transform(sample)
         return sample
 
+class Lang(object):
+    
+    def __init__(self,buildLangs=True,word_lang=None,char_lang=None,output_lang=None,dataset=None,maxVocabSamples=10000):
+        if not buildLangs:
+            assert word_lang is not None and char_lang is not None and output_lang is not None
+        else:
+            assert dataset is not None
+            #build langs
+        self.maxVocabSamples=maxVocabSamples    
+
+        word_lang,char_lang=self.buildDialogLang(dataset)
+        self.word_lang=word_lang
+        self.char_lang=char_lang
+        self.output_lang=word_lang
+        self.indexStore=None
+    def updateLang(self,store,word_lang,char_lang):
+        pass
+    def buildKBLang(self,dataset,lang=None):
+        if lang is None:
+            lang=Lang()
+        samples=min(self.maxVocabSamples,dataset.__len__())
+        for i in range(samples):
+            sample=dataset.__getitem__(i)
+            store=sample["store"]
+            for row in store:
+                lang.index_words(" ".join(row.values()))
+        return lang
+    def buildDialogLang(self,dataset):
+        word_lang=Lang()
+        char_lang=Lang()
+        
+        samples=min(self.maxVocabSamples,dataset.__len__())
+        for i in range(samples):
+            sample=dataset.__getitem__(i)
+            dialog=sample["dialog"]
+            for turn in dialog:
+                
+                text=" ".join(turn)                    
+                word_lang.index_words(normalize_string(text))
+                words=text.split()
+                for word in words:
+                    char_lang.index_words(" ".join(get_shortened_word(word)))
+        word_lang=self.buildKBLang(dataset, word_lang)      
+        return word_lang,char_lang        
+        
+                    
+    def __call__(self,sample):
+        #use langs to convert variables to tensors
+        context=sample["context"]
+        joinedContext=""
+        charIndexContext=[]
+        for line in context:
+            joinedContext+=line
+            joinedContext+=" "+EOS_label+" "
+            words=line.split(" ")
+            for word in words:
+                charIndexContext.append(indexes_from_sentence(self.char_lang, " ".join(get_shortened_word(word)))[:-1])
+            charIndexContext.append([EOS_token])
+        sample["indexContext"]=indexes_from_sentence(self.word_lang,joinedContext.strip())[:-1]
+        sample["indexTarget"]=indexes_from_sentence(self.word_lang,sample["target"])
+        sample["charIndexContext"]=charIndexContext
+        if sameStoreForAllSamples and self.indexStore is not None:
+            sample["indexStore"]=self.indexStore
+        else:
+            self.indexStore=[[indexes_from_sentence(self.word_lang,value)[:-1] for value in row.values()] for row in sample["store"]]
+            sample["indexStore"]=self.indexStore
+        return sample   
+
 if __name__=="__main__":
     phone=NoiseFreeSymbol()
     phone.print()

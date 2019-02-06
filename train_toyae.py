@@ -12,7 +12,7 @@ if __name__ == "__main__":
     #name = "marsanma_chat"
     #directory = 'marsanma'
 
-    training_data_path = "naive-audio-train_3000.txt"
+    training_data_path = "naive-audio-train_300000.txt"
     model_path = "models"+os.path.sep+name+".model"
     weights = None #[1., 1., 1., 1., 1., 5.]
     
