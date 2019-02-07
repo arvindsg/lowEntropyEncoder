@@ -12,7 +12,7 @@ if __name__ == "__main__":
     #name = "marsanma_chat"
     directory = 'data'
 
-    training_data_path = directory+os.path.sep+"naive-audio-train_300000.txt"
+    training_data_path = directory+os.path.sep+"naive-audio-train_3000.txt"
     model_path = "models"+os.path.sep+name+".model"
     weights = None #[1., 1., 1., 1., 1., 5.]
     
@@ -31,7 +31,7 @@ if __name__ == "__main__":
     #    print("Output dictionary", output_lang.index2word)
         
     ## Next, we build the models
-    model_builder = Seq2SeqModelBuilder()
+    model_builder = SequenceAutoCompleteModelBuilder()
     #model_builder = LuongAttentionSeq2SeqModelBuilder()
 #     model_builder = BahdanauAttentionSeq2SeqModelBuilder()
     predictor = model_builder.get_predictor(input_, weights)
