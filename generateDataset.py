@@ -12,7 +12,7 @@ def writeDataset(dataset,file):
             for i in range(len(dataset)):
                 item=dataset.__getitem__(i)
                 phoneStrings="".join(list(map(lambda a:a.get()[0],item.phoneSequence)))            
-                f.write(" ".join(phoneStrings )+"\t "+" ".join(phoneStrings )+os.linesep)
+                f.write(" ".join(phoneStrings )+"\t "+" ".join(phoneStrings )+'\n')
                 g.write(" ".join(map(str,item.sequence))+os.linesep)
             
 def writeDict(phones,file):
