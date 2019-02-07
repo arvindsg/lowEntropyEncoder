@@ -10,14 +10,17 @@ if __name__ == "__main__":
     name = "toy_ae"
     
     #name = "marsanma_chat"
-    #directory = 'marsanma'
+    directory = 'data'
 
-    training_data_path = "naive-audio-train_300000.txt"
+    training_data_path = directory+os.path.sep+"naive-audio-train_300000.txt"
     model_path = "models"+os.path.sep+name+".model"
     weights = None #[1., 1., 1., 1., 1., 5.]
     
     ## First, we prepare the data
-    
+    if USE_CUDA:
+        print("Training on GPU")
+    else:
+        print("Training on cpu")
     input_ = Input(training_data_path)
     #input_char_lang, input_lang, output_lang, pairs = input_.prepare_data()
     #if trim > 0:
